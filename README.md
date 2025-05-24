@@ -28,3 +28,8 @@ Continue building your app on:
 2. Deploy your chats from the v0 interface
 3. Changes are automatically pushed to this repository
 4. Vercel deploys the latest version from this repository
+
+## 실행 순서
+npm install --legacy-peer-deps
+npm run build
+npm start
