@@ -6,9 +6,49 @@ import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/components/ui/use-toast"
 import { useState } from "react"
 import { Bell, CheckCircle } from "lucide-react"
+import { ApiTooltip, type ApiInfo } from "@/components/api-tooltip"
 
 export default function NotificationsPage() {
   const { toast } = useToast()
+
+  // API 정보 정의
+  const getNotificationsApiInfo: ApiInfo = {
+    method: "GET",
+    endpoint: "/notifications",
+    description: "알림 목록을 조회합니다.",
+    queryParams: {
+      page: "페이지 번호 (기본: 1)",
+      size: "페이지 크기 (기본: 20)",
+    },
+    responseExample: {
+      resultCode: "200000",
+      resultMessage: "알림 목록 조회 성공",
+      data: {
+        notifications: [
+          {
+            notification_id: 1,
+            type: "COMMENT",
+            message: "누군가 내 게시글에 댓글을 남겼습니다.",
+            is_read: false,
+            created_at: "2024-11-02T13:00:00",
+          },
+        ],
+      },
+    },
+  }
+
+  const markAsReadApiInfo: ApiInfo = {
+    method: "PATCH",
+    endpoint: "/notifications/{notification_id}/read",
+    description: "알림을 읽음 처리합니다.",
+    pathParams: {
+      notification_id: "알림 ID",
+    },
+    responseExample: {
+      resultCode: "200000",
+      resultMessage: "알림 읽음 처리 성공",
+    },
+  }
 
   // 실제 구현에서는 API에서 데이터를 가져와야 함
   const [notifications, setNotifications] = useState([
@@ -67,69 +107,78 @@ export default function NotificationsPage() {
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">
           <h1 className="text-3xl font-bold">알림</h1>
-          {unreadCount > 0 && <Badge variant="destructive">{unreadCount}개 읽지 않음</Badge>}
+          {unreadCount > 0 && (
+            <Badge variant="destructive">
+              {unreadCount}
+              {"개 읽지 않음"}
+            </Badge>
+          )}
         </div>
         {unreadCount > 0 && (
-          <Button variant="outline" onClick={handleMarkAllAsRead}>
-            모두 읽음 처리
-          </Button>
+          <ApiTooltip apiInfo={markAsReadApiInfo}>
+            <Button variant="outline" onClick={handleMarkAllAsRead}>
+              모두 읽음 처리
+            </Button>
+          </ApiTooltip>
         )}
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>알림 목록</CardTitle>
-          <CardDescription>최근 알림 목록입니다. 읽지 않은 알림은 강조 표시됩니다.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {notifications.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <Bell className="mx-auto h-12 w-12 mb-4 opacity-20" />
-              <p>알림이 없습니다.</p>
-            </div>
-          ) : (
-            notifications.map((notification) => (
-              <div
-                key={notification.id}
-                className={`p-4 border rounded-lg flex justify-between items-start ${!notification.isRead ? "bg-muted" : ""}`}
-              >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <Badge
-                      variant={
-                        notification.type === "COMMENT"
-                          ? "default"
-                          : notification.type === "LIKE"
-                            ? "secondary"
-                            : notification.type === "REPLY"
-                              ? "outline"
-                              : "destructive"
-                      }
-                    >
-                      {notification.type === "COMMENT"
-                        ? "댓글"
-                        : notification.type === "LIKE"
-                          ? "좋아요"
-                          : notification.type === "REPLY"
-                            ? "답글"
-                            : "시스템"}
-                    </Badge>
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(notification.createdAt).toLocaleString("ko-KR")}
-                    </span>
-                  </div>
-                  <p>{notification.message}</p>
-                </div>
-                {!notification.isRead && (
-                  <Button variant="ghost" size="sm" onClick={() => handleMarkAsRead(notification.id)}>
-                    <CheckCircle className="h-4 w-4" />
-                  </Button>
-                )}
+      <ApiTooltip apiInfo={getNotificationsApiInfo} showIndicator={false}>
+        <Card>
+          <CardHeader>
+            <CardTitle>알림 목록</CardTitle>
+            <CardDescription>최근 알림 목록입니다. 읽지 않은 알림은 강조 표시됩니다.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {notifications.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Bell className="mx-auto h-12 w-12 mb-4 opacity-20" />
+                <p>알림이 없습니다.</p>
               </div>
-            ))
-          )}
-        </CardContent>
-      </Card>
+            ) : (
+              notifications.map((notification) => (
+                <div
+                  key={notification.id}
+                  className={`p-4 border rounded-lg flex justify-between items-start ${!notification.isRead ? "bg-muted" : ""}`}
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        variant={
+                          notification.type === "COMMENT"
+                            ? "default"
+                            : notification.type === "LIKE"
+                              ? "secondary"
+                              : notification.type === "REPLY"
+                                ? "outline"
+                                : "destructive"
+                        }
+                      >
+                        {notification.type === "COMMENT"
+                          ? "댓글"
+                          : notification.type === "LIKE"
+                            ? "좋아요"
+                            : notification.type === "REPLY"
+                              ? "답글"
+                              : "시스템"}
+                      </Badge>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(notification.createdAt).toLocaleString("ko-KR")}
+                      </span>
+                    </div>
+                    <p>{notification.message}</p>
+                  </div>
+                  {!notification.isRead && (
+                    <Button variant="ghost" size="sm" onClick={() => handleMarkAsRead(notification.id)}>
+                      <CheckCircle className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              ))
+            )}
+          </CardContent>
+        </Card>
+      </ApiTooltip>
     </div>
   )
 }

@@ -18,10 +18,110 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { ApiTooltip, type ApiInfo } from "@/components/api-tooltip"
 
 export default function TrashPage() {
   const { toast } = useToast()
   const [selectedTab, setSelectedTab] = useState("posts")
+
+  // API 정보 정의
+  const getDeletedPostsApiInfo: ApiInfo = {
+    method: "GET",
+    endpoint: "/me/trash/posts",
+    description: "삭제된 게시글 목록을 조회합니다.",
+    queryParams: {
+      page: "페이지 번호 (기본: 1)",
+      size: "페이지 크기 (기본: 20)",
+    },
+    responseExample: {
+      resultCode: "200000",
+      resultMessage: "삭제된 게시글 목록 조회 성공",
+      data: [
+        {
+          post_id: 123,
+          title: "삭제된 글입니다",
+          author_id: 101,
+          created_at: "2024-10-01T12:00:00",
+          deleted_at: "2024-11-01T08:00:00",
+        },
+      ],
+    },
+  }
+
+  const getDeletedCommentsApiInfo: ApiInfo = {
+    method: "GET",
+    endpoint: "/me/trash/comments",
+    description: "삭제된 댓글 목록을 조회합니다.",
+    queryParams: {
+      page: "페이지 번호 (기본: 1)",
+      size: "페이지 크기 (기본: 20)",
+    },
+    responseExample: {
+      resultCode: "200000",
+      resultMessage: "삭제된 댓글 목록 조회 성공",
+      data: [
+        {
+          comment_id: 456,
+          content: "삭제된 댓글입니다.",
+          author_id: 202,
+          created_at: "2024-10-15T10:00:00",
+          deleted_at: "2024-11-01T09:30:00",
+        },
+      ],
+    },
+  }
+
+  const restorePostApiInfo: ApiInfo = {
+    method: "PATCH",
+    endpoint: "/me/trash/posts/{post_id}/restore",
+    description: "삭제된 게시글을 복구합니다.",
+    pathParams: {
+      post_id: "복구할 게시글 ID",
+    },
+    responseExample: {
+      resultCode: "200000",
+      resultMessage: "게시글 복구 성공",
+    },
+  }
+
+  const restoreCommentApiInfo: ApiInfo = {
+    method: "PATCH",
+    endpoint: "/me/trash/comments/{comment_id}/restore",
+    description: "삭제된 댓글을 복구합니다.",
+    pathParams: {
+      comment_id: "복구할 댓글 ID",
+    },
+    responseExample: {
+      resultCode: "200000",
+      resultMessage: "댓글 복구 성공",
+    },
+  }
+
+  const permanentDeletePostApiInfo: ApiInfo = {
+    method: "DELETE",
+    endpoint: "/me/trash/posts/{post_id}",
+    description: "게시글을 완전히 삭제합니다.",
+    pathParams: {
+      post_id: "완전 삭제할 게시글 ID",
+    },
+    responseExample: {
+      resultCode: "200000",
+      resultMessage: "게시글 완전 삭제 완료",
+    },
+  }
+
+  const permanentDeleteCommentApiInfo: ApiInfo = {
+    method: "DELETE",
+    endpoint: "/me/trash/comments/{comment_id}",
+    description: "댓글을 완전히 삭제합니다.",
+    pathParams: {
+      comment_id: "완전 삭제할 댓글 ID",
+    },
+    responseExample: {
+      resultCode: "200000",
+      resultMessage: "댓글 완전 삭제 완료",
+    },
+  }
 
   // 실제 구현에서는 API에서 데이터를 가져와야 함
   const deletedPosts = [
@@ -82,32 +182,36 @@ export default function TrashPage() {
                       <TableCell>{new Date(post.deletedAt).toLocaleString("ko-KR")}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <Button variant="outline" size="sm" onClick={() => handleRestore(post.id, "post")}>
-                            <Undo className="h-4 w-4 mr-1" />
-                            복구
-                          </Button>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="destructive" size="sm">
-                                <Trash2 className="h-4 w-4 mr-1" />
-                                완전 삭제
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>게시글 완전 삭제</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  이 게시글을 완전히 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>취소</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDelete(post.id, "post")}>
-                                  삭제
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
+                          <ApiTooltip apiInfo={restorePostApiInfo}>
+                            <Button variant="outline" size="sm" onClick={() => handleRestore(post.id, "post")}>
+                              <Undo className="h-4 w-4 mr-1" />
+                              복구
+                            </Button>
+                          </ApiTooltip>
+                          <ApiTooltip apiInfo={permanentDeletePostApiInfo}>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="destructive" size="sm">
+                                  <Trash2 className="h-4 w-4 mr-1" />
+                                  완전 삭제
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>게시글 완전 삭제</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    이 게시글을 완전히 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>취소</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleDelete(post.id, "post")}>
+                                    삭제
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </ApiTooltip>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -142,32 +246,36 @@ export default function TrashPage() {
                       <TableCell>{new Date(comment.deletedAt).toLocaleString("ko-KR")}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <Button variant="outline" size="sm" onClick={() => handleRestore(comment.id, "comment")}>
-                            <Undo className="h-4 w-4 mr-1" />
-                            복구
-                          </Button>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="destructive" size="sm">
-                                <Trash2 className="h-4 w-4 mr-1" />
-                                완전 삭제
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>댓글 완전 삭제</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  이 댓글을 완전히 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>취소</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDelete(comment.id, "comment")}>
-                                  삭제
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
+                          <ApiTooltip apiInfo={restoreCommentApiInfo}>
+                            <Button variant="outline" size="sm" onClick={() => handleRestore(comment.id, "comment")}>
+                              <Undo className="h-4 w-4 mr-1" />
+                              복구
+                            </Button>
+                          </ApiTooltip>
+                          <ApiTooltip apiInfo={permanentDeleteCommentApiInfo}>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="destructive" size="sm">
+                                  <Trash2 className="h-4 w-4 mr-1" />
+                                  완전 삭제
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>댓글 완전 삭제</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    이 댓글을 완전히 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>취소</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleDelete(comment.id, "comment")}>
+                                    삭제
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </ApiTooltip>
                         </div>
                       </TableCell>
                     </TableRow>

@@ -24,6 +24,7 @@ import {
   ArrowUpDown,
   ChevronDown,
   Filter,
+  FileBarChart,
 } from "lucide-react"
 import Link from "next/link"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -31,6 +32,144 @@ import AdminStats from "@/components/admin/admin-stats"
 import AdminUserManagement from "@/components/admin/admin-user-management"
 import AdminCategoryManagement from "@/components/admin/admin-category-management"
 import AdminSystemSettings from "@/components/admin/admin-system-settings"
+import { ApiTooltip } from "@/components/api-tooltip"
+
+// 신고 관리 탭의 API 정보들
+const getPostReportsApiInfo = {
+  method: "GET",
+  endpoint: "/admin/reports/posts",
+  description: "게시글 신고 목록을 조회합니다.",
+  queryParams: {
+    page: "페이지 번호",
+    size: "페이지당 신고 수",
+    status: "신고 상태 필터 (PENDING, PROCESSED, REJECTED)",
+  },
+  responseExample: {
+    resultCode: "200000",
+    resultMessage: "게시글 신고 목록 조회 성공",
+    data: [
+      {
+        report_id: 1,
+        reason: "욕설이 포함되어 있습니다.",
+        reporter_id: 101,
+        status: "PENDING",
+        created_at: "2024-11-01T09:00:00",
+      },
+    ],
+  },
+}
+
+const getCommentReportsApiInfo = {
+  method: "GET",
+  endpoint: "/admin/reports/comments",
+  description: "댓글 신고 목록을 조회합니다.",
+  queryParams: {
+    page: "페이지 번호",
+    size: "페이지당 신고 수",
+    status: "신고 상태 필터 (PENDING, PROCESSED, REJECTED)",
+  },
+  responseExample: {
+    resultCode: "200000",
+    resultMessage: "댓글 신고 목록 조회 성공",
+    data: [
+      {
+        report_id: 11,
+        reason: "비속어가 포함되어 있음",
+        reporter_id: 1002,
+        status: "PENDING",
+        created_at: "2024-11-02T15:30:00",
+      },
+    ],
+  },
+}
+
+const updateReportStatusApiInfo = {
+  method: "PATCH",
+  endpoint: "/admin/reports/{report_id}/status",
+  description: "신고 처리 상태를 변경합니다.",
+  pathParams: {
+    report_id: "신고 ID",
+  },
+  requestBody: {
+    status: "PROCESSED 또는 REJECTED",
+  },
+  responseExample: {
+    resultCode: "200000",
+    resultMessage: "신고 상태 변경 성공",
+  },
+}
+
+const getBlindedPostsApiInfo = {
+  method: "GET",
+  endpoint: "/admin/posts/blinded",
+  description: "블라인드 처리된 게시글 목록을 조회합니다.",
+  queryParams: {
+    page: "페이지 번호 (기본: 1)",
+    size: "페이지 크기 (기본: 20)",
+  },
+  responseExample: {
+    resultCode: "200000",
+    resultMessage: "블라인드 게시글 목록 조회 성공",
+    data: [
+      {
+        post_id: 123,
+        title: "블라인드 처리된 게시글",
+        author_id: 101,
+        blind_reason: "욕설이 포함되어 있습니다",
+        created_at: "2024-10-01T12:00:00",
+      },
+    ],
+  },
+}
+
+const getBlindedCommentsApiInfo = {
+  method: "GET",
+  endpoint: "/admin/comments/blinded",
+  description: "블라인드 처리된 댓글 목록을 조회합니다.",
+  queryParams: {
+    page: "페이지 번호 (기본: 1)",
+    size: "페이지 크기 (기본: 20)",
+  },
+  responseExample: {
+    resultCode: "200000",
+    resultMessage: "블라인드 댓글 목록 조회 성공",
+    data: [
+      {
+        comment_id: 555,
+        content: "비속어가 포함된 댓글",
+        author_id: 1005,
+        blind_reason: "욕설 포함",
+        created_at: "2024-11-01T08:30:00",
+      },
+    ],
+  },
+}
+
+const unblindPostApiInfo = {
+  method: "PATCH",
+  endpoint: "/admin/posts/{post_id}/unblind",
+  description: "게시글 블라인드를 해제합니다.",
+  pathParams: {
+    post_id: "게시글 ID",
+  },
+  responseExample: {
+    resultCode: "200000",
+    resultMessage: "블라인드 게시글 해제 성공",
+  },
+}
+
+const unblindCommentApiInfo = {
+  method: "PATCH",
+  endpoint: "/admin/comments/{comment_id}/unblind",
+  description: "댓글 블라인드를 해제합니다.",
+  pathParams: {
+    comment_id: "댓글 ID",
+  },
+  responseExample: {
+    resultCode: "200000",
+    resultMessage: "블라인드 댓글 해제 성공",
+  },
+}
 
 export default function AdminDashboard() {
   const { toast } = useToast()
@@ -40,9 +179,17 @@ export default function AdminDashboard() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">관리자 대시보드</h1>
-        <Button variant="outline" asChild>
-          <Link href="/">사이트로 돌아가기</Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" asChild>
+            <Link href="/admin/logs">
+              <FileBarChart className="h-4 w-4 mr-2" />
+              로그 확인
+            </Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link href="/">사이트로 돌아가기</Link>
+          </Button>
+        </div>
       </div>
 
       <Tabs defaultValue="overview" value={selectedTab} onValueChange={setSelectedTab}>
@@ -73,17 +220,14 @@ export default function AdminDashboard() {
           </TabsTrigger>
         </TabsList>
 
-        {/* 대시보드 개요 */}
         <TabsContent value="overview">
           <AdminStats />
         </TabsContent>
 
-        {/* 사용자 관리 */}
         <TabsContent value="users">
           <AdminUserManagement />
         </TabsContent>
 
-        {/* 신고 관리 */}
         <TabsContent value="reports" className="space-y-4">
           <Tabs defaultValue="posts">
             <TabsList>
@@ -208,35 +352,42 @@ export default function AdminDashboard() {
                               </Button>
                               {post.status === "PENDING" && (
                                 <>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => {
-                                      toast({
-                                        description: "게시글 신고가 처리되었습니다.",
-                                      })
-                                    }}
-                                  >
-                                    <CheckCircle className="h-4 w-4 text-green-500" />
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => {
-                                      toast({
-                                        description: "게시글 신고가 거부되었습니다.",
-                                      })
-                                    }}
-                                  >
-                                    <XCircle className="h-4 w-4 text-red-500" />
-                                  </Button>
+                                  <ApiTooltip apiInfo={updateReportStatusApiInfo}>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => {
+                                        toast({
+                                          description: "게시글 신고가 처리되었습니다.",
+                                        })
+                                      }}
+                                    >
+                                      <CheckCircle className="h-4 w-4 text-green-500" />
+                                    </Button>
+                                  </ApiTooltip>
+                                  <ApiTooltip apiInfo={updateReportStatusApiInfo}>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => {
+                                        toast({
+                                          description: "게시글 신고가 거부되었습니다.",
+                                        })
+                                      }}
+                                    >
+                                      <XCircle className="h-4 w-4 text-red-500" />
+                                    </Button>
+                                  </ApiTooltip>
                                 </>
                               )}
+
                               {post.status !== "PENDING" && (
                                 <Select
                                   onValueChange={(value) => {
+                                    const statusText =
+                                      value === "PENDING" ? "대기중" : value === "PROCESSED" ? "처리됨" : "거부됨"
                                     toast({
-                                      description: `게시글 신고 상태가 ${value === "PENDING" ? "대기중" : value === "PROCESSED" ? "처리됨" : "거부됨"}으로 변경되었습니다.`,
+                                      description: `게시글 신고 상태가 ${statusText}으로 변경되었습니다.`,
                                     })
                                   }}
                                 >
@@ -371,35 +522,41 @@ export default function AdminDashboard() {
                             <div className="flex items-center gap-2">
                               {comment.status === "PENDING" && (
                                 <>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => {
-                                      toast({
-                                        description: "댓글 신고가 처리되었습니다.",
-                                      })
-                                    }}
-                                  >
-                                    <CheckCircle className="h-4 w-4 text-green-500" />
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => {
-                                      toast({
-                                        description: "댓글 신고가 거부되었습니다.",
-                                      })
-                                    }}
-                                  >
-                                    <XCircle className="h-4 w-4 text-red-500" />
-                                  </Button>
+                                  <ApiTooltip apiInfo={updateReportStatusApiInfo}>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => {
+                                        toast({
+                                          description: "댓글 신고가 처리되었습니다.",
+                                        })
+                                      }}
+                                    >
+                                      <CheckCircle className="h-4 w-4 text-green-500" />
+                                    </Button>
+                                  </ApiTooltip>
+                                  <ApiTooltip apiInfo={updateReportStatusApiInfo}>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => {
+                                        toast({
+                                          description: "댓글 신고가 거부되었습니다.",
+                                        })
+                                      }}
+                                    >
+                                      <XCircle className="h-4 w-4 text-red-500" />
+                                    </Button>
+                                  </ApiTooltip>
                                 </>
                               )}
                               {comment.status !== "PENDING" && (
                                 <Select
                                   onValueChange={(value) => {
+                                    const statusText =
+                                      value === "PENDING" ? "대기중" : value === "PROCESSED" ? "처리됨" : "거부됨"
                                     toast({
-                                      description: `댓글 신고 상태가 ${value === "PENDING" ? "대기중" : value === "PROCESSED" ? "처리됨" : "거부됨"}으로 변경되었습니다.`,
+                                      description: `댓글 신고 상태가 ${statusText}으로 변경되었습니다.`,
                                     })
                                   }}
                                 >
@@ -439,12 +596,10 @@ export default function AdminDashboard() {
           </Tabs>
         </TabsContent>
 
-        {/* 카테고리 관리 */}
         <TabsContent value="categories">
           <AdminCategoryManagement />
         </TabsContent>
 
-        {/* 블라인드 관리 */}
         <TabsContent value="blinded" className="space-y-4">
           <Tabs defaultValue="posts">
             <TabsList>
@@ -521,17 +676,19 @@ export default function AdminDashboard() {
                                   <Eye className="h-4 w-4" />
                                 </Link>
                               </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
-                                  toast({
-                                    description: "게시글 블라인드가 해제되었습니다.",
-                                  })
-                                }}
-                              >
-                                블라인드 해제
-                              </Button>
+                              <ApiTooltip apiInfo={unblindPostApiInfo}>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    toast({
+                                      description: "게시글 블라인드가 해제되었습니다.",
+                                    })
+                                  }}
+                                >
+                                  블라인드 해제
+                                </Button>
+                              </ApiTooltip>
                             </div>
                           </TableCell>
                         </TableRow>
@@ -613,17 +770,19 @@ export default function AdminDashboard() {
                           <TableCell>{comment.reason}</TableCell>
                           <TableCell>{new Date(comment.createdAt).toLocaleString("ko-KR")}</TableCell>
                           <TableCell>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                toast({
-                                  description: "댓글 블라인드가 해제되었습니다.",
-                                })
-                              }}
-                            >
-                              블라인드 해제
-                            </Button>
+                            <ApiTooltip apiInfo={unblindCommentApiInfo}>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  toast({
+                                    description: "댓글 블라인드가 해제되었습니다.",
+                                  })
+                                }}
+                              >
+                                블라인드 해제
+                              </Button>
+                            </ApiTooltip>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -649,7 +808,6 @@ export default function AdminDashboard() {
           </Tabs>
         </TabsContent>
 
-        {/* 시스템 설정 */}
         <TabsContent value="settings">
           <AdminSystemSettings />
         </TabsContent>

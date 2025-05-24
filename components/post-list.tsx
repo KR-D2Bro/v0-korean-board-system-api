@@ -12,25 +12,10 @@ interface PostListProps {
 }
 
 export default function PostList({ type = "all" }: PostListProps) {
-  // 실제 구현에서는 API에서 데이터를 가져와야 함
+  // 게시글 데이터를 통일된 카테고리로 수정
   const posts = [
     {
       id: "1",
-      title: "게시판 시스템 개발 중입니다",
-      category: "공지사항",
-      author: {
-        name: "관리자",
-        avatar: "/placeholder.svg?height=32&width=32",
-      },
-      createdAt: "2025-05-20T14:23:11",
-      viewCount: 42,
-      likeCount: 5,
-      commentCount: 3,
-      isNotice: true,
-      isPinned: true,
-    },
-    {
-      id: "2",
       title: "게시판 사용 가이드",
       category: "공지사항",
       author: {
@@ -45,24 +30,9 @@ export default function PostList({ type = "all" }: PostListProps) {
       isPinned: false,
     },
     {
-      id: "3",
-      title: "자유게시판 첫 게시글입니다",
+      id: "2",
+      title: "오늘 날씨가 정말 좋네요!",
       category: "자유게시판",
-      author: {
-        name: "홍길동",
-        avatar: "/placeholder.svg?height=32&width=32",
-      },
-      createdAt: "2025-05-18T09:30:45",
-      viewCount: 28,
-      likeCount: 7,
-      commentCount: 5,
-      isNotice: false,
-      isPinned: false,
-    },
-    {
-      id: "4",
-      title: "질문있습니다",
-      category: "질문/답변",
       author: {
         name: "이순신",
         avatar: "/placeholder.svg?height=32&width=32",
@@ -75,9 +45,9 @@ export default function PostList({ type = "all" }: PostListProps) {
       isPinned: false,
     },
     {
-      id: "5",
-      title: "유용한 정보 공유합니다",
-      category: "정보공유",
+      id: "3",
+      title: "주말 계획 공유해요",
+      category: "자유게시판",
       author: {
         name: "김철수",
         avatar: "/placeholder.svg?height=32&width=32",
@@ -86,6 +56,51 @@ export default function PostList({ type = "all" }: PostListProps) {
       viewCount: 32,
       likeCount: 12,
       commentCount: 4,
+      isNotice: false,
+      isPinned: false,
+    },
+    {
+      id: "4",
+      title: "맛있는 카페 추천드려요",
+      category: "카테고리1",
+      author: {
+        name: "박영희",
+        avatar: "/placeholder.svg?height=32&width=32",
+      },
+      createdAt: "2025-05-15T14:30:20",
+      viewCount: 45,
+      likeCount: 8,
+      commentCount: 12,
+      isNotice: false,
+      isPinned: false,
+    },
+    {
+      id: "5",
+      title: "게시판 시스템 개발 중입니다",
+      category: "공지사항",
+      author: {
+        name: "관리자",
+        avatar: "/placeholder.svg?height=32&width=32",
+      },
+      createdAt: "2025-05-20T14:23:11",
+      viewCount: 42,
+      likeCount: 5,
+      commentCount: 3,
+      isNotice: true,
+      isPinned: true,
+    },
+    {
+      id: "6",
+      title: "자유게시판 첫 게시글입니다",
+      category: "카테고리2",
+      author: {
+        name: "홍길동",
+        avatar: "/placeholder.svg?height=32&width=32",
+      },
+      createdAt: "2025-05-14T09:30:45",
+      viewCount: 28,
+      likeCount: 7,
+      commentCount: 5,
       isNotice: false,
       isPinned: false,
     },

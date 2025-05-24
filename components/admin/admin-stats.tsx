@@ -59,10 +59,10 @@ export default function AdminStats() {
   ]
 
   const categoryData = [
-    { name: "자유게시판", value: 45 },
-    { name: "질문/답변", value: 25 },
-    { name: "정보공유", value: 20 },
     { name: "공지사항", value: 10 },
+    { name: "자유게시판", value: 45 },
+    { name: "카테고리1", value: 25 },
+    { name: "카테고리2", value: 20 },
   ]
 
   const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"]

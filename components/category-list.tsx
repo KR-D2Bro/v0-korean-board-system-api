@@ -8,13 +8,13 @@ import { usePathname } from "next/navigation"
 export default function CategoryList() {
   const pathname = usePathname()
 
-  // 실제 구현에서는 API에서 데이터를 가져와야 함
+  // 카테고리 목록 수정
   const categories = [
     { id: "all", name: "전체", count: 42 },
     { id: "1", name: "공지사항", count: 5 },
-    { id: "2", name: "자유게시판", count: 15 },
-    { id: "3", name: "질문/답변", count: 12 },
-    { id: "4", name: "정보공유", count: 10 },
+    { id: "2", name: "자유게시판", count: 25 },
+    { id: "3", name: "카테고리1", count: 8 },
+    { id: "4", name: "카테고리2", count: 4 },
   ]
 
   return (

@@ -63,8 +63,8 @@ export default function AdminCategoryManagement() {
     },
     {
       id: "3",
-      name: "질문/답변",
-      description: "질문과 답변을 주고받는 게시판",
+      name: "카테고리1",
+      description: "카테고리1 설명",
       postCount: 85,
       isVisible: true,
       order: 3,
@@ -72,8 +72,8 @@ export default function AdminCategoryManagement() {
     },
     {
       id: "4",
-      name: "정보공유",
-      description: "유용한 정보를 공유하는 게시판",
+      name: "카테고리2",
+      description: "카테고리2 설명",
       postCount: 65,
       isVisible: true,
       order: 4,
