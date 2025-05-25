@@ -17,7 +17,7 @@ export default function Home() {
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input type="search" placeholder="검색..." className="w-full pl-8" />
           </div>
-          <Link href="/posts/create">
+          <Link href="/posts/write">
             <Button>
               <PlusCircle className="mr-2 h-4 w-4" />
               글쓰기

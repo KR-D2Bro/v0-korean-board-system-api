@@ -24,7 +24,10 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           <Header />
-          <main className="container mx-auto py-6 px-4 min-h-[calc(100vh-64px)]">{children}</main>
+          <main className="w-full max-w-screen-xl mx-auto px-6 py-6">
+            {children}
+          </main>
+
           <Toaster />
         </ThemeProvider>
       </body>

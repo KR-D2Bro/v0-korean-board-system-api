@@ -30,6 +30,18 @@ export default function PostDetail({ params }: { params: { id: string } }) {
   const [reportDialogOpen, setReportDialogOpen] = useState(false)
   const [reportReason, setReportReason] = useState("")
 
+  // "create"인 경우 404 처리하여 create 페이지가 우선되도록 함
+  if (params.id === "create") {
+    return (
+      <div className="max-w-4xl mx-auto text-center py-8">
+        <h1 className="text-2xl font-bold mb-4">잘못된 접근입니다</h1>
+        <Button asChild>
+          <Link href="/posts/create">글쓰기 페이지로 이동</Link>
+        </Button>
+      </div>
+    )
+  }
+
   const handleLike = () => {
     if (liked) {
       setLiked(false)
@@ -70,10 +82,116 @@ export default function PostDetail({ params }: { params: { id: string } }) {
   }
 
   // 실제 구현에서는 API에서 데이터를 가져와야 함
-  const post = {
-    id: params.id,
-    title: "게시판 시스템 개발 중입니다",
-    content: `
+  const posts = {
+    "1": {
+      id: "1",
+      title: "게시판 사용 가이드",
+      content: `
+      # 게시판 사용 가이드
+
+      안녕하세요! 게시판 사용 방법을 안내드립니다.
+
+      ## 주요 기능
+      - 게시글 작성 및 수정
+      - 댓글 작성
+      - 파일 첨부
+      - 카테고리별 분류
+
+      궁금한 점이 있으시면 언제든 문의해주세요.
+    `,
+      author: {
+        id: "101",
+        name: "관리자",
+        avatar: "/placeholder.svg?height=40&width=40",
+      },
+      category: "공지사항",
+      createdAt: "2025-05-19T10:15:22",
+      viewCount: 36,
+      likeCount: 4,
+      commentCount: 2,
+      files: [],
+    },
+    "2": {
+      id: "2",
+      title: "오늘 날씨가 정말 좋네요!",
+      content: `
+      # 오늘 날씨가 정말 좋네요!
+
+      오늘 하루 종일 맑은 날씨가 계속되고 있어서 기분이 너무 좋습니다!
+      
+      이런 날에는 밖에 나가서 산책하거나 운동하기 딱 좋은 것 같아요.
+      
+      여러분은 오늘 어떻게 보내고 계신가요?
+    `,
+      author: {
+        id: "102",
+        name: "이순신",
+        avatar: "/placeholder.svg?height=40&width=40",
+      },
+      category: "자유게시판",
+      createdAt: "2025-05-17T16:45:30",
+      viewCount: 15,
+      likeCount: 2,
+      commentCount: 8,
+      files: [],
+    },
+    "3": {
+      id: "3",
+      title: "주말 계획 공유해요",
+      content: `
+      # 주말 계획 공유해요
+
+      이번 주말에 뭐 하실 계획이신가요?
+      
+      저는 친구들과 함께 영화를 보러 갈 예정입니다.
+      최근에 개봉한 영화 중에 재미있는 것들이 많더라고요!
+      
+      여러분의 주말 계획도 댓글로 공유해주세요 😊
+    `,
+      author: {
+        id: "103",
+        name: "김철수",
+        avatar: "/placeholder.svg?height=40&width=40",
+      },
+      category: "자유게시판",
+      createdAt: "2025-05-16T11:20:15",
+      viewCount: 32,
+      likeCount: 12,
+      commentCount: 4,
+      files: [],
+    },
+    "4": {
+      id: "4",
+      title: "맛있는 카페 추천드려요",
+      content: `
+      # 맛있는 카페 추천드려요
+
+      최근에 발견한 정말 맛있는 카페가 있어서 추천드리고 싶어요!
+      
+      ## 카페 정보
+      - 이름: 달콤한 하루
+      - 위치: 강남역 근처
+      - 추천 메뉴: 아메리카노, 치즈케이크
+      
+      분위기도 좋고 커피 맛도 정말 좋아요.
+      기회가 되시면 한번 가보세요!
+    `,
+      author: {
+        id: "104",
+        name: "박영희",
+        avatar: "/placeholder.svg?height=40&width=40",
+      },
+      category: "카테고리1",
+      createdAt: "2025-05-15T14:30:20",
+      viewCount: 45,
+      likeCount: 8,
+      commentCount: 12,
+      files: [],
+    },
+    "5": {
+      id: "5",
+      title: "게시판 시스템 개발 중입니다",
+      content: `
       # 게시판 시스템 개발 중
 
       안녕하세요, 현재 게시판 시스템을 개발 중입니다.
@@ -88,17 +206,57 @@ export default function PostDetail({ params }: { params: { id: string } }) {
 
       감사합니다!
     `,
-    author: {
-      id: "101",
-      name: "홍길동",
-      avatar: "/placeholder.svg?height=40&width=40",
+      author: {
+        id: "101",
+        name: "관리자",
+        avatar: "/placeholder.svg?height=40&width=40",
+      },
+      category: "공지사항",
+      createdAt: "2025-05-20T14:23:11",
+      viewCount: 42,
+      likeCount: 5,
+      commentCount: 3,
+      files: [{ id: "1", name: "개발계획서.pdf", size: "1.2MB" }],
     },
-    category: "공지사항",
-    createdAt: "2025-05-20T14:23:11",
-    viewCount: 42,
-    likeCount: 5,
-    commentCount: 3,
-    files: [{ id: "1", name: "개발계획서.pdf", size: "1.2MB" }],
+    "6": {
+      id: "6",
+      title: "자유게시판 첫 게시글입니다",
+      content: `
+      # 자유게시판 첫 게시글입니다
+
+      안녕하세요! 자유게시판에 첫 게시글을 올립니다.
+      
+      이곳에서 자유롭게 소통하고 정보를 공유했으면 좋겠어요.
+      
+      앞으로 많은 분들과 좋은 이야기 나누고 싶습니다.
+      잘 부탁드려요! 🙂
+    `,
+      author: {
+        id: "105",
+        name: "홍길동",
+        avatar: "/placeholder.svg?height=40&width=40",
+      },
+      category: "카테고리2",
+      createdAt: "2025-05-14T09:30:45",
+      viewCount: 28,
+      likeCount: 7,
+      commentCount: 5,
+      files: [],
+    },
+  }
+
+  const post = posts[params.id as keyof typeof posts]
+
+  // post가 없으면 404 페이지 표시
+  if (!post) {
+    return (
+      <div className="max-w-4xl mx-auto text-center py-8">
+        <h1 className="text-2xl font-bold mb-4">게시글을 찾을 수 없습니다</h1>
+        <Button asChild>
+          <Link href="/posts">목록으로 돌아가기</Link>
+        </Button>
+      </div>
+    )
   }
 
   // API 정보 정의

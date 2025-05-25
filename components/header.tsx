@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ModeToggle } from "@/components/mode-toggle"
-import { Bell, User, LogOut, Settings, Trash2, ShieldAlert } from "lucide-react"
+import { Bell, User, LogOut, Settings, Trash2, ShieldAlert, PlusCircle } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
 import { Badge } from "@/components/ui/badge"
@@ -90,21 +90,6 @@ export default function Header() {
             <Link href="/" className="text-sm font-medium transition-colors hover:text-primary">
               홈
             </Link>
-            <Link href="/posts" className="text-sm font-medium transition-colors hover:text-primary">
-              게시판
-            </Link>
-            {isLoggedIn ? (
-              <Link href="/posts/create" className="text-sm font-medium transition-colors hover:text-primary">
-                글쓰기
-              </Link>
-            ) : (
-              <button
-                onClick={() => setShowAuthDialog(true)}
-                className="text-sm font-medium transition-colors hover:text-primary"
-              >
-                글쓰기
-              </button>
-            )}
           </nav>
         </div>
         <div className="flex items-center gap-4">
@@ -112,6 +97,12 @@ export default function Header() {
 
           {isLoggedIn ? (
             <>
+              <Link href="/posts/write">
+                <Button>
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  글쓰기
+                </Button>
+              </Link>
               <ApiTooltip apiInfo={notificationApiInfo}>
                 <Link href="/notifications" className="relative">
                   <Button variant="ghost" size="icon">

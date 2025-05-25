@@ -97,7 +97,7 @@ export default function PostsPage() {
       setShowAuthDialog(true)
       return
     }
-    router.push("/posts/create")
+    router.push("/posts/write")
   }
 
   return (
